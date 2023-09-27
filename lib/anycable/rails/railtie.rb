@@ -28,7 +28,12 @@ module AnyCable
             console = ActiveSupport::Logger.new($stdout)
             console.formatter = ::Rails.logger.formatter if ::Rails.logger.respond_to?(:formatter)
             console.level = ::Rails.logger.level if ::Rails.logger.respond_to?(:level)
-            AnyCable.logger.extend(ActiveSupport::Logger.broadcast(console))
+
+            if ::Rails::VERSION::STRING < "7.1"
+              AnyCable.logger.extend(ActiveSupport::Logger.broadcast(console))
+            else
+              ::Rails.logger = ::ActiveSupport::BroadcastLogger.new(AnyCable.logger, console)
+            end
           end
         end
 
